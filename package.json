@@ -1,9 +1,10 @@
 {
   "name": "canvas-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Server for frontend. Handles the transformation of bitmap converts to G-code.",
   "main": "app.js",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "serialport": "^5.0.0-beta7"
   },
@@ -14,7 +15,6 @@
   },
   "author": "Ashton Meuser",
   "license": "MIT",
-  "description": "Server for frontend. Handles the transformation of bitmap converts to G-code.",
   "repository": "https://github.com/3dlaserengraver/canvas-server.git",
   "jshintConfig": {
     "node": true,
