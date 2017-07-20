@@ -11,10 +11,14 @@ module.exports = class Usb {
   }
 
   openCallback(error) {
-    if(error) {
+    if (error) {
       return console.log('Error1: ', error.message);
     }
-    serialPort.flush();
+    this.flush();
+  }
+
+  flush() {
+    this.serialPort.flush();
   }
 
   errorCallback(error) {
