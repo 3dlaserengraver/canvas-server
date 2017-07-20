@@ -33,7 +33,11 @@ module.exports = class Gcode {
     return undefined;
   }
 
-  planar(bitmap, height) {
+  invertCoordinate(max, coordinate) {
+    return (max - 1 - coordinate);
+  }
+
+  planar(bitmap, height=0) {
     let bmZ = height + this.laserFocalDistance;
     let gcodeArray = [];
 
@@ -42,7 +46,7 @@ module.exports = class Gcode {
       for(let bmX=0; bmX<bitmap[bmY].length+1; bmX++) {
         if (bitmap[bmY][bmX] !== power) {
           if (bitmap[bmY][bmX]===undefined && power===0) break;
-          gcodeArray.push(this.gcode(power, bmX, (bitmap.length - 1 - bmY), bmZ));
+          gcodeArray.push(this.gcode(power, bmX, this.invertCoordinate(bitmap.length, bmY), bmZ));
           power = bitmap[bmY][bmX];
         }
       }
@@ -50,7 +54,7 @@ module.exports = class Gcode {
     return gcodeArray;
   }
 
-  cylindrical(bitmap, height, diameter) {
+  cylindrical(bitmap, diameter, height=0) {
 
   }
 };
