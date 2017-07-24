@@ -168,7 +168,7 @@ module.exports = class Gcode {
     return (max - 1 - coordinate);
   }
 
-  planar(bitmap, height) {
+  planar(bitmap, height=0) {
     let bmZ = height + this.laserFocalDistance;
     let gcodeArray = [];
 
