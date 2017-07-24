@@ -15,14 +15,15 @@ module.exports = class Gcode {
     this.yAbsCenter = 200;
     this.laserFocalDistance = 100;
     this.maxMoveAngle = 114; //~ 10 degrees
-    // this.testBitmap = [
-    //   [0, 0, 1, 1, 0, 0, 1, 1],
-    //   [0, 0, 0, 0, 0, 0, 0, 0],
-    //   [2, 3, 4, 0, 0, 0, 3, 3],
-    //   [3, 3, 0, 0, 0, 0, 0, 4],
-    //   [5, 5, 0, 0, 0, 0, 0, 0]
-    // ];
+    this.halfASteps = 4096/2;
     this.testBitmap = [
+      [0, 0, 1, 1, 0, 0, 1, 1],
+      [0, 0, 0, 0, 0, 0, 0, 0],
+      [2, 3, 4, 0, 0, 0, 3, 3],
+      [3, 3, 0, 0, 0, 0, 0, 4],
+      [5, 5, 0, 0, 0, 0, 0, 0]
+    ];
+    /*this.testBitmap = [
       [130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130],
       [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,130,  0],
       [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,130,  0,  0],
@@ -124,25 +125,27 @@ module.exports = class Gcode {
       [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
       [  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
       [130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130,130]
-    ];
+    ];*/
   }
 
   config() { // TODO: Remove for prod
     return ['$X', 'F5', '$102=150', '$32=1', 'M4'];
   }
 
-  gcode(power, bmX, bmY, bmZ, bmA) {
+  gcode(power, bmX, bmY, bmZ, radius) {
     
-    if(typeof(bmA) === 'undefined'){ //cylinder mode
-      let x = bmX * this.stepsToMm.x;
-      let y = bmY * this.stepsToMm.y;
+    if(typeof(radius) === 'undefined'){ //cylinder mode
+      
+      let a = bmX * this.stepsToMm.a;
+      let x = 100* bmX * this.stepsToMm.x;
+      let y = 100* bmY * this.stepsToMm.y;
       let z = bmZ * this.stepsToMm.z;
-      let a = bmA * this.stepsToMm.a;
+      //let a = bmA * this.stepsToMm.a;
 
-      if(power === 0)
-        return "G"+0+"X"+x+"Y"+y+"Z"+z+"A"+a+"F"+this.G0feedRate+"S0";
+      if(power === 0) //*** add a
+        return "G"+0+"X"+x+"Y"+y+"Z"+z+"A"+"F"+this.G0feedRate+"S0";
       else
-        return "G"+1+"F"+this.G1feedRate+0+"X"+x+"Y"+y+"Z"+z+"A"+a+"S"+Math.round(power*1000/255);
+        return "G"+1+"F"+this.G1feedRate+0+"X"+x+"Y"+y+"Z"+z+"A"+"S"+Math.round(power*1000/255);
     } 
     else{
       let x = bmX * this.stepsToMm.x;
@@ -172,7 +175,7 @@ module.exports = class Gcode {
     let bmZ = height + this.laserFocalDistance;
     let gcodeArray = [];
 
-     for(let bmY=0; bmY<bitmap.length; bmY++) {
+    for(let bmY=0; bmY<bitmap.length; bmY++) {
       let power = 0;
       for(let bmX=0; bmX<bitmap[bmY].length+1; bmX++) {
         if (bitmap[bmY][bmX] !== power) {
@@ -181,6 +184,19 @@ module.exports = class Gcode {
           power = bitmap[bmY][bmX];
         }
       }
+      power = undefined;
+      bmY++;
+      if (typeof bitmap[bmY] === 'undefined') break;
+      for(let bmX=bitmap[bmY].length; bmX>=0; bmX--) {
+        console.log('a')
+        if (bitmap[bmY][bmX] !== power) {
+          if (bitmap[bmY][bmX]===undefined && power===0) break;
+          gcodeArray.push('back');
+          gcodeArray.push(this.gcode(power, bmX, this.invertCoordinate(bitmap.length, bmY), bmZ));
+          power = bitmap[bmY][bmX];
+        }
+      }
+      power = 0;
     }
     return gcodeArray;
   }
@@ -189,29 +205,51 @@ cylindrical(bitmap, diameter, height) {
   let gcodeArray = [];
   let radius = diameter/2 + this.laserFocalDistance;
   let moveAngle = maxMoveAngle;
-  let previousBmx = 0;
-  let previousBmy = 0;
-  let bmA = 0;
 
   for(bmY=0; bmY<bitmap.length; bmY++){
-    let power = 0;
     for(let bmX = 0; bmX<bitmap[bmY].length+1; bmX++){
-      if(bitmap[bmY][bmX] !== power || moveAngle === 0){
+      if(bitmap[bmY][bmX] !== power || moveAngle < maxMoveAngle){
         if(bitmap[bmX][bmY]===undefined && power===0) break;
-        gcodeArray.push(this.gcode(power, bmX, bmY, bmZ,));
+        gcodeArray.push(this.gcode(power, bmX, bmY, bmZ, radius));
         power = bitmap[bmY][bmX];
-        if(bmY !== previousBmy){
-          bmA = 
-        }
-        moveAngle = maxMoveAngle;
-        previousBmx = bmX;
-        previousBmy = bmY;
-
-
+        moveAngle = 0;
       }
     }
-    moveAngle--;
+    bmY++;
+    moveAngle++;
+    for(let bmX = bitmap[bmY]; bmX<bitmap[bmY].length+1; bmX--){
+      if(bitmap[bmY][bmX] !== power || moveAngle < maxMoveAngle){
+        if(bitmap[bmX][bmY]===undefined && power===0) break;
+        gcodeArray.push(this.gcode(power, bmX, bmY, bmZ, radius));
+        power = bitmap[bmY][bmX];
+        moveAngle = 0;
+      }
+      moveAngle++;
+    }
   }
+
+
+  // for(bmY=0; bmY<bitmap.length; bmY++){
+  //   let power = 0;
+  //   for(let bmX = 0; bmX<bitmap[bmY].length+1; bmX++){
+  //     if(bitmap[bmY][bmX] !== power || moveAngle === 0){
+  //       if(bitmap[bmX][bmY]===undefined && power===0) break;
+        
+  //       if(bmY !== previousBmy){
+  //         bmA = 
+  //       }
+
+  //       gcodeArray.push(this.gcode(power, bmX, bmY, bmZ,));
+  //       power = bitmap[bmY][bmX];
+  //       moveAngle = maxMoveAngle;
+  //       previousBmx = bmX;
+  //       previousBmy = bmY;
+
+
+  //     }
+  //   }
+  //   moveAngle--;
+  // }
 
 
 

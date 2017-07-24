@@ -1,8 +1,8 @@
-const bodyParser = require('body-parser');
-const Usb = require('./usb.js');
-const async = require('async');
+//const bodyParser = require('body-parser');
+//const Usb = require('./usb.js');
+//const async = require('async');
 
-global.usb = new Usb();
+//global.usb = new Usb();
 
 const Gcode = require('./gcode.js');
 const gcode = new Gcode();
@@ -15,6 +15,7 @@ gcodeArrayGlobal.unshift('M3 S0'); //turn laser mode on at power 0
 gcodeArrayGlobal.unshift('$X'); //turn laser mode on at power 0
 gcodeArrayGlobal.push('M5'); //turn laser off
 
-usb.send(gcodeArrayGlobal.shift());
+console.log(gcodeArrayGlobal);
+//usb.send(gcodeArrayGlobal.shift());
 
 
