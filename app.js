@@ -6,6 +6,7 @@ const app = express();
 const usb = new Usb();
 const gcode = new Gcode();
 
+
 usb.send(gcode.config()); // TODO: Remove for prod
 
 app.use(express.static('public'));

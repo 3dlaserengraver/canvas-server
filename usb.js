@@ -26,12 +26,33 @@ module.exports = class Usb {
   }
 
   readCallback() {
-    console.log('Read:', this.serialPort.read().toString());
+    var rxString = this.serialPort.read().toString();
+    console.log("Read Callback: "+ rxString);
+
+    rxString = rxString.replace(/\n/,'').replace(/\r/, ''); 
+
+    if(((rxString === 'ok') || (rxString ==='o')) && (gcodeArrayGlobal.length>0)){ //the 'o' is because of a glitch that sometimes sends the 'g' and 'o' seperately
+      usb.send(gcodeArrayGlobal.shift());
+    }
+    else{
+      let selector = /error:([0-9]+)/
+      let error = rxString.match(selector);
+      // switch(error){
+      //    14 : //GRBL buffer full, try again
+      //     usb.send(gcodeArrayGlobal[i]);
+      //     i++;
+      //     break;
+          //TODO handle more errors...
+      //}
+
+    }
   }
 
   send(string) {
     this.serialPort.write(string+'\r', 'ascii', function(error) {
-      console.log('message written');
-    });
+      console.log('message written:');
+      console.log(string);
+    }); 
   }
+
 };
