@@ -1,8 +1,13 @@
 const SerialPort = require('serialport');
 
 module.exports = class Usb {
-  constructor() {
+  constructor(ttl=3000) {
     this.port = '/dev/ttyUSB0';
+    this.ttl = ttl;
+    this.ttl = ttl;
+    this.timeouts = [];
+    this.resolves = [];
+    this.rejects = [];
     this.options = {baudRate: 115200};
     this.serialPort = new SerialPort(this.port, this.options);
     this.serialPort.on('error', this.errorCallback.bind(this));
@@ -26,33 +31,48 @@ module.exports = class Usb {
   }
 
   readCallback() {
-    var rxString = this.serialPort.read().toString();
-    console.log("Read Callback: "+ rxString);
-
-    rxString = rxString.replace(/\n/,'').replace(/\r/, ''); 
-
-    if(((rxString === 'ok') || (rxString ==='o')) && (gcodeArrayGlobal.length>0)){ //the 'o' is because of a glitch that sometimes sends the 'g' and 'o' seperately
-      usb.send(gcodeArrayGlobal.shift());
-    }
-    else{
-      let selector = /error:([0-9]+)/
-      let error = rxString.match(selector);
-      // switch(error){
-      //    14 : //GRBL buffer full, try again
-      //     usb.send(gcodeArrayGlobal[i]);
-      //     i++;
-      //     break;
-          //TODO handle more errors...
-      //}
-
+    var data = this.serialPort.read().toString();
+    console.log('received: '+data);
+    this.clearTimeout();
+    if (this.resolves.length!==0 && this.rejects.length!==0) {
+      if (data.match(/^(o|ok)$/) !== null) {
+        this.resolves[0]();
+      } else if (data.match(/^error:(\d+)$/) !== null) {
+        this.rejects[0](Error(data));
+      } // Ignore anything not matching above formats
+      this.resolves.shift();
+      this.rejects.shift();
     }
   }
 
-  send(string) {
-    this.serialPort.write(string+'\r', 'ascii', function(error) {
-      console.log('message written:');
-      console.log(string);
-    }); 
+  handlePromise(resolve, reject) {
+    this.resolves.push(resolve);
+    this.rejects.push(reject);
+    this.timeouts.push(setTimeout(reject, this.ttl, Error('timeout')));
   }
 
+  clearTimeout() {
+    if (this.timeouts.length !== 0) {
+      clearTimeout(this.timeouts[0]);
+      this.timeouts.shift();
+    }
+  }
+
+  send(data) {
+    if (typeof data !== 'string') return Promise.reject(Error('data must be a string'));
+    console.log('sending: '+data);
+    this.serialPort.write(data+'\r', 'ascii', function(error) {
+      if (error) return Promise.reject(Error('Error writing data: '+data));
+    });
+    return new Promise(this.handlePromise.bind(this));
+  }
+
+  sendSync(data) {
+    if (!Array.isArray(data)) return Promise.reject(Error('data must be an array'));
+    return this.send(data[0])
+      .then(() => {
+        data.shift();
+        return data.length===0 ? Promise.resolve() : this.sendSync(data);
+      });
+  }
 };
