@@ -4,17 +4,17 @@
 module.exports = class Gcode {
   constructor() {
     this.stepsToMm = {
-      x: 0.01,
-      y: 0.01,
+      x: 1/80,
+      y: 1/80,
       z: 1000/91.5 //calibration based on the 150 steps/mm setting in grbl
     };
-    this.G0feedRate = 600;
-    this.G1feedRate = 400;
+    this.G0feedRate = 1000;
+    this.G1feedRate = 1000;
     this.xAbsCenter = 194; //mm
     this.yAbsCenter = 175; //mm
-    this.laserFocalDistance = 100;
+    this.laserFocalDistance = 50;
     this.maxMoveAngle = 114; //~ 10 degrees
-    this.stepsPerRot = 100;
+    this.stepsPerRot = 4096;
     this.halfASteps = this.stepsPerRot/2;
     this.stepsToDeg = 360/this.stepsPerRot;
     this.bitMapSize = 500; //*** assumes square arrays
@@ -23,12 +23,12 @@ module.exports = class Gcode {
   }
 
   startup() { // TODO: Remove for prod
-    let gcodeArray =  [ '$H',
+    let gcodeArray =  [ //'$X',
                         'M5',
-                        "G10L2P1X200Y300A"+(this.aOffset+359.912),
-                        'G54',
-                        'G0X20Y20F'+this.G0feedRate+'S0',
-                        'A0'
+                        //"G10L2P1X200Y300A"+(this.aOffset+359.912),
+                        //'G54',
+                        //'G0X20Y20F'+this.G0feedRate+'S0',
+                        //'A0'
                       ];  //needed to to ensure the homing bar for the rotation does hit the side after homing
     return gcodeArray;
   }
