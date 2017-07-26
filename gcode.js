@@ -36,7 +36,7 @@ module.exports = class Gcode {
   gcode(power, bmX, bmY, bmZ, size, radius) {
 
     if(typeof(radius) === 'undefined'){ //planar mode
-      let resize = (size/this.stepsToMm.x)/this.bitmap.length;//* assumes we are getting a square array
+      let resize = (size/this.stepsToMm.x)/this.bitmapSize;//* assumes we are getting a square array
       let x = bmX * this.stepsToMm.x.toFixed(this.roundTo);
       let y = bmY * this.stepsToMm.y.toFixed(this.roundTo);
       let z = bmZ * this.stepsToMm.z.toFixed(this.roundTo);
