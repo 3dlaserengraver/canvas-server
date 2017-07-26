@@ -95,7 +95,7 @@ module.exports = class Gcode {
 
   planar(bitmap, height=0, size) {
     this.bitMapSize = bitmap.length;
-    let bmZ = height + this.laserFocalDistance;
+    let bmZ = 0;//height + this.laserFocalDistance;
     let gcodeArray = [];
     
     for(let bmY=0; bmY<bitmap.length; bmY++) {
