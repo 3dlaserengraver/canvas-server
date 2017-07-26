@@ -4,9 +4,7 @@ module.exports = class Usb {
   constructor(ttl=3000) {
     this.port = '/dev/ttyUSB0';
     this.ttl = ttl;
-    this.timeouts = [];
-    this.resolves = [];
-    this.rejects = [];
+    this.resetPromises();
     this.options = {baudRate: 115200};
     this.serialPort = new SerialPort(this.port, this.options);
     this.serialPort.on('error', this.errorCallback.bind(this));
@@ -33,9 +31,7 @@ module.exports = class Usb {
     var data = this.serialPort.read().toString();
     if (data.match(/^error:7\s*$/m) !== null) { // System reset
       console.log('should reset');
-      this.timeouts = [];
-      this.resolves = [];
-      this.rejects = [];
+      this.resetPromises();
       if (typeof this.onReset !== 'undefined') this.onReset();
       return;
     }
@@ -43,22 +39,34 @@ module.exports = class Usb {
       if (data.match(/^(o|ok)\s*$/m) !== null) { // Successful command
         console.log('resolving with data: '+data.trim());
         let resolve = this.resolves[0];
-        this.timeouts.shift();
-        this.resolves.shift();
-        this.rejects.shift();
+        this.shiftPromises();
         resolve(data);
       } else if (data.match(/^error:(\d+)\s*$/m) !== null) { // General error
         console.log('rejecting with data: '+data.trim());
         let reject = this.rejects[0];
-        this.timeouts.shift();
-        this.resolves.shift();
-        this.rejects.shift();
+        this.shiftPromises();
         reject(Error(data));
       } else { // Ignore
         console.log('invalid: '+data);
         return;
       }
     }
+  }
+
+  shiftPromises() {
+    clearTimeout(this.timeouts[0]);
+    this.timeouts.shift();
+    this.resolves.shift();
+    this.rejects.shift();
+  }
+
+  resetPromises() {
+    this.timeouts.forEach((timeout) => {
+      clearTimeout(timeout);
+    });
+    this.timeouts = [];
+    this.resolves = [];
+    this.rejects = [];
   }
 
   handlePromise(resolve, reject) {
