@@ -2,12 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Usb = require('./usb.js');
 const Gcode = require('./gcode.js');
+const testBitmaps = require('./testBitmaps.js');
 const app = express();
 const usb = new Usb();
 const gcode = new Gcode();
 
 
-usb.sendSync(gcode.config()) // TODO: Remove for prod
+usb.sendSync(gcode.startup()) // TODO: Remove for prod
   .then(() => {
     console.log('successfully configured usb');
   })
@@ -26,7 +27,7 @@ app.post('/upload', function (req, res) {
     res.send('Invalid bitmap');
     return;
   }
-  let gcodeArray = gcode.planar(gcode.testBitmap);
+  let gcodeArray = gcode.planar(testBitmaps[0]);
   usb.sendSync(gcodeArray)
     .then(() => {
       res.send('Sent G-code');
