@@ -17,14 +17,15 @@ module.exports = class Gcode {
     this.stepsPerRot = 100;
     this.halfASteps = this.stepsPerRot/2;
     this.stepsToDeg = 360/this.stepsPerRot;
+    this.bitMapSize = 500; //*** assumes square arrays
     this.roundTo = 3;
-    this.aOffset = 5;
+    this.aOffset = -8;
   }
 
   startup() { // TODO: Remove for prod
     let gcodeArray =  [ '$H',
                         'M5',
-                        "G10L2P1A"+this.aOffset,
+                        "G10L2P1X200Y300A"+(this.aOffset+359.912),
                         'G54',
                         'G0X20Y20F'+this.G0feedRate+'S0',
                         'A0'
@@ -32,9 +33,10 @@ module.exports = class Gcode {
     return gcodeArray;
   }
 
-  gcode(power, bmX, bmY, bmZ, radius) {
+  gcode(power, bmX, bmY, bmZ, size, radius) {
 
     if(typeof(radius) === 'undefined'){ //planar mode
+      let resize = (size/stepsToMm.x)/bitmap.length;//* assumes we are getting a square array
       let x = bmX * this.stepsToMm.x.toFixed(this.roundTo);
       let y = bmY * this.stepsToMm.y.toFixed(this.roundTo);
       let z = bmZ * this.stepsToMm.z.toFixed(this.roundTo);
@@ -45,10 +47,13 @@ module.exports = class Gcode {
 
     }
     else{ //cylindar mode
-      let a = bmX * this.stepsToDeg;
-      let x = radius * Math.cos(a*Math.PI/180).toFixed(this.roundTo);
-      let y = radius * Math.sin(a*Math.PI/180).toFixed(this.roundTo);
-      let z = bmY * this.stepsToMm.z.toFixed(this.roundTo);
+      let resizeA = (size/this.stepsToDeg)/bitMapSize;
+      let resizeZ = (size/stepsToMm.z)/bitMapSize;//*** assumes we are getting a square array
+      radius = radius + this.laserFocalDistance;
+      let a = (bmX * resizeA * this.stepsToDeg).toFixed(this.roundTo);;
+      let x = (radius * Math.cos(a*Math.PI/180)).toFixed(this.roundTo);
+      let y = (radius * Math.sin(a*Math.PI/180)).toFixed(this.roundTo);
+      let z = (bmY * resizeZ * this.stepsToMm.z).toFixed(this.roundTo);
       a = (a+180).toFixed(this.roundTo);
 
       if(power === 0)
@@ -89,15 +94,16 @@ module.exports = class Gcode {
   }
 
   planar(bitmap, height=0, size) {
+    this.bitMapSize = bitmap.length;
     let bmZ = height + this.laserFocalDistance;
     let gcodeArray = [];
-    let resize = (size/stepsToMm.x)/bitmap.length;//* assumes we are getting a square array
+    
     for(let bmY=0; bmY<bitmap.length; bmY++) {
       let power = 0;
       for(let bmX=0; bmX<bitmap[bmY].length+1; bmX++) {
         if (bitmap[bmY][bmX] !== power) {
           if (bitmap[bmY][bmX]===undefined && power===0) break;
-          gcodeArray.push(this.gcode(power, bmX, this.invertCoordinate(bitmap.length, bmY), bmZ));
+          gcodeArray.push(this.gcode(power, bmX, this.invertCoordinate(bitmap.length, bmY), bmZ, size));
           power = bitmap[bmY][bmX];
         }
       }
@@ -117,18 +123,19 @@ module.exports = class Gcode {
     return gcodeArray;
   }
 
-cylindrical(bitmap, diameter, height, size) {
+cylindrical(bitmap, height, size, diameter) {
+  this.bitMapSize = bitmap.length;
   let gcodeArray = [];
-  let radius = diameter/2 + this.laserFocalDistance;
+  let radius = diameter/2;
   let moveAngle = this.maxMoveAngle;
   let bmZ = height;
-
+  
   for(let bmY=0; bmY<bitmap.length; bmY++){
     let power = 0;
     for(let bmX = 0; bmX<bitmap[bmY].length+1; bmX++){
       if(bitmap[bmY][bmX] !== power || (moveAngle < this.maxMoveAngle && power > 0)){
         if(bitmap[bmY][bmX]===undefined && power===0) break;
-        gcodeArray.push(this.gcode(power, bmX, bmY, bmZ, radius));
+        gcodeArray.push(this.gcode(power, bmX, bmY, bmZ, size, radius));
         power = bitmap[bmY][bmX];
         moveAngle = 0;
       }

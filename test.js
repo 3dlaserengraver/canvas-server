@@ -15,12 +15,12 @@ console.log(gcode.startup());
 console.log(gcode.moveToStart(100,50));//planar
 //console.log(gcode.moveToStart(100,50,10));//cylindrical
 
-gcodeArray = gcode.planar(testBitmaps[0], 10, 50);
-//gcodeArray = gcode.cylindrical(gcode.testBitmap, 10, 10);
+gcodeArray = gcode.planar(testBitmaps[0], 10, 100);
+//gcodeArray = gcode.cylindrical(gcode.testBitmap, 10, 100);
 
 gcodeArray.unshift('M3S0') //turn laser on
 
 gcodeArray.push('M5'); //turn laser off
 
-console.log(gcodeArray);
-//usb.send(gcodeArray);
+//console.log(gcodeArray);
+usb.sendSync(gcodeArray);
