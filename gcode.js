@@ -37,9 +37,9 @@ module.exports = class Gcode {
 
     if(typeof(radius) === 'undefined'){ //planar mode
       let resize = (size/this.stepsToMm.x)/this.bitmapSize;//* assumes we are getting a square array
-      let x = bmX * this.stepsToMm.x.toFixed(this.roundTo);
-      let y = bmY * this.stepsToMm.y.toFixed(this.roundTo);
-      let z = bmZ * this.stepsToMm.z.toFixed(this.roundTo);
+      let x = bmX * this.stepsToMm.x;
+      let y = bmY * this.stepsToMm.y;
+      let z = bmZ * this.stepsToMm.z;
       if(power === 0)
         return "G"+0+"X"+x+"Y"+y+"Z"+z+"F"+this.G0feedRate+"S0";
       else
@@ -50,16 +50,16 @@ module.exports = class Gcode {
       let resizeA = (size/this.stepsToDeg)/this.bitMapSize;
       let resizeZ = (size/this.stepsToMm.z)/this.bitMapSize;//*** assumes we are getting a square array
       radius = radius + this.laserFocalDistance;
-      let a = (bmX * resizeA * this.stepsToDeg).toFixed(this.roundTo);;
-      let x = (radius * Math.cos(a*Math.PI/180)).toFixed(this.roundTo);
-      let y = (radius * Math.sin(a*Math.PI/180)).toFixed(this.roundTo);
-      let z = (bmY * resizeZ * this.stepsToMm.z).toFixed(this.roundTo);
+      let a = (bmX * resizeA * this.stepsToDeg);
+      let x = (radius * Math.cos(a*Math.PI/180));
+      let y = (radius * Math.sin(a*Math.PI/180));
+      let z = (bmY * resizeZ * this.stepsToMm.z);
       a = (a+180).toFixed(this.roundTo);
 
       if(power === 0)
-        return "G"+3+"X"+x+"Y"+y+"Z"+z+"R"+radius+"A"+a+"F"+this.G0feedRate+"S0";
+        return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"R"+radius+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
       else
-        return "G"+1+"F"+this.G1feedRate+0+"X"+x+"Y"+y+"Z"+z+"A"+a+"S"+Math.round(power*1000/255);
+        return "G"+1+"F"+this.G1feedRate+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
     }
   }
 
