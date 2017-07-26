@@ -32,15 +32,17 @@ module.exports = class Usb {
 
   readCallback() {
     var data = this.serialPort.read().toString();
-    this.clearTimeout();
-    if (this.resolves.length!==0 && this.rejects.length!==0) {
-      if (data.match(/^(o|ok)\s*$/g) !== null) {
+    if (this.resolves.length!==0 && this.rejects.length!==0 && this.timeouts.length!==0) {
+      if (data.match(/^(o|ok)\s*$/) !== null) {
         console.log('resolving with data: '+data.trim());
         this.resolves[0](data);
       } else if (data.match(/^error:(\d+)\s*$/) !== null) {
         console.log('rejecting with data: '+data.trim());
         this.rejects[0](Error(data));
-      } // Ignore anything not matching above formats
+      } else {
+        return;
+      }
+      this.timeouts.shift();
       this.resolves.shift();
       this.rejects.shift();
     }
@@ -50,13 +52,6 @@ module.exports = class Usb {
     this.resolves.push(resolve);
     this.rejects.push(reject);
     this.timeouts.push(setTimeout(reject, this.ttl, Error('timeout')));
-  }
-
-  clearTimeout() {
-    if (this.timeouts.length !== 0) {
-      clearTimeout(this.timeouts[0]);
-      this.timeouts.shift();
-    }
   }
 
   send(data) {

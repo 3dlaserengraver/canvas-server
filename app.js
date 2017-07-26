@@ -13,7 +13,7 @@ usb.sendSync(gcode.startup()) // TODO: Remove for prod
     console.log('successfully configured usb');
   })
   .catch((error) => {
-    console.log('failed to configure usb'+error);
+    console.log('failed to configure usb '+error);
   });
 
 app.use(express.static('public'));
