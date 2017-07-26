@@ -27,16 +27,14 @@ app.post('/upload', function (req, res) {
     return;
   }
   let gcodeArray = gcode.planar(gcode.testBitmap);
-  gcodeArray.forEach((gcodeString) => {
-    usb.sendSync(gcodeString)
-      .then(() => {
-        res.send('Sent G-code');
-      })
-      .catch((error) => {
-        res.status(400);
-        res.send(error);
-      });
-  });
+  usb.sendSync(gcodeArray)
+    .then(() => {
+      res.send('Sent G-code');
+    })
+    .catch((error) => {
+      res.status(400);
+      res.send(error);
+    });
 });
 
 app.post('/send', function (req, res) {
