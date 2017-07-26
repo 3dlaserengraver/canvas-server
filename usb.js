@@ -32,12 +32,13 @@ module.exports = class Usb {
 
   readCallback() {
     var data = this.serialPort.read().toString();
-    console.log('received: '+data);
     this.clearTimeout();
     if (this.resolves.length!==0 && this.rejects.length!==0) {
-      if (data.match(/^(o|ok)$/) !== null) {
+      if (data.match(/^(o|ok)\s*$/g) !== null) {
+        console.log('resolving with data: '+data.trim());
         this.resolves[0](data);
-      } else if (data.match(/^error:(\d+)$/) !== null) {
+      } else if (data.match(/^error:(\d+)\s*$/) !== null) {
+        console.log('rejecting with data: '+data.trim());
         this.rejects[0](Error(data));
       } // Ignore anything not matching above formats
       this.resolves.shift();
