@@ -23,7 +23,7 @@ module.exports = class Gcode {
   }
 
   startup() { // TODO: Remove for prod
-    let gcodeArray =  [ //'$X',
+    let gcodeArray =  [ '$X',
                         'M5',
                         //"G10L2P1X200Y300A"+(this.aOffset+359.912),
                         //'G54',
