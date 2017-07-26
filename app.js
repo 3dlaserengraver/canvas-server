@@ -34,6 +34,7 @@ app.post('/upload', function (req, res) {
   let gcodeArray = gcode.planar(req.body.bitmap, 100, 0);
   usb.sendSync(gcodeArray)
     .then(() => {
+      console.log('Sent G-code');
       res.send('Sent G-code');
     })
     .catch((error) => {
