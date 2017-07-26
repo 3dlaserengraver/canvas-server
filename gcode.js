@@ -54,7 +54,7 @@ module.exports = class Gcode {
       let x = (radius * Math.cos(a*Math.PI/180));
       let y = (radius * Math.sin(a*Math.PI/180));
       let z = (bmY * resizeZ * this.stepsToMm.z);
-      a = (a+180).toFixed(this.roundTo);
+      a = (a+180);
 
       if(power === 0)
         return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"R"+radius+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
@@ -95,9 +95,9 @@ module.exports = class Gcode {
 
   planar(bitmap, size, height=0) {
     this.bitMapSize = bitmap.length;
-    let bmZ = 0;
-    let gcodeArray = [];
-
+    let bmZ = 0;//height + this.laserFocalDistance;
+    let gcodeArray = ['M3S0'];
+    
     for(let bmY=0; bmY<bitmap.length; bmY++) {
       let power = 0;
       for(let bmX=0; bmX<bitmap[bmY].length+1; bmX++) {
@@ -108,6 +108,7 @@ module.exports = class Gcode {
         }
       }
     }
+    gcodeArray.push('M5');
     return gcodeArray;
   }
 
@@ -127,7 +128,7 @@ cylindrical(bitmap, height, size, diameter) {
         power = bitmap[bmY][bmX];
         moveAngle = 0;
       }
-    }
+    } 
     moveAngle++;
     // bmY++;
 
