@@ -96,7 +96,7 @@ module.exports = class Gcode {
   planar(bitmap, height=0, size) {
     this.bitMapSize = bitmap.length;
     let bmZ = 0;//height + this.laserFocalDistance;
-    let gcodeArray = [];
+    let gcodeArray = ['M3S0'];
     
     for(let bmY=0; bmY<bitmap.length; bmY++) {
       let power = 0;
@@ -120,6 +120,7 @@ module.exports = class Gcode {
       // }
       // power = 0;
     }
+    gcodeArray.push('M5');
     return gcodeArray;
   }
 
