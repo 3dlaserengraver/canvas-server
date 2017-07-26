@@ -36,7 +36,7 @@ module.exports = class Gcode {
   gcode(power, bmX, bmY, bmZ, size, radius) {
 
     if(typeof(radius) === 'undefined'){ //planar mode
-      let resize = (size/stepsToMm.x)/bitmap.length;//* assumes we are getting a square array
+      let resize = (size/this.stepsToMm.x)/bitmap.length;//* assumes we are getting a square array
       let x = bmX * this.stepsToMm.x.toFixed(this.roundTo);
       let y = bmY * this.stepsToMm.y.toFixed(this.roundTo);
       let z = bmZ * this.stepsToMm.z.toFixed(this.roundTo);
@@ -48,7 +48,7 @@ module.exports = class Gcode {
     }
     else{ //cylindar mode
       let resizeA = (size/this.stepsToDeg)/bitMapSize;
-      let resizeZ = (size/stepsToMm.z)/bitMapSize;//*** assumes we are getting a square array
+      let resizeZ = (size/this.stepsToMm.z)/bitMapSize;//*** assumes we are getting a square array
       radius = radius + this.laserFocalDistance;
       let a = (bmX * resizeA * this.stepsToDeg).toFixed(this.roundTo);;
       let x = (radius * Math.cos(a*Math.PI/180)).toFixed(this.roundTo);
