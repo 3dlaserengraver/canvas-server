@@ -36,9 +36,9 @@ module.exports = class Gcode {
   gcode(power, bmX, bmY, bmZ, size, radius) {
 
     if(typeof(radius) === 'undefined'){ //planar mode
-      let resize = (size/this.stepsToMm.x)/this.bitmapSize;//* assumes we are getting a square array
-      let x = bmX * this.stepsToMm.x;
-      let y = bmY * this.stepsToMm.y;
+      let resize = (size/this.stepsToMm.x)/this.bitMapSize;//* assumes we are getting a square array
+      let x = bmX * resize * this.stepsToMm.x;
+      let y = bmY * resize * this.stepsToMm.y;
       let z = bmZ * this.stepsToMm.z;
       if(power === 0)
         return "G"+0+"X"+x+"Y"+y+"Z"+z+"F"+this.G0feedRate+"S0";

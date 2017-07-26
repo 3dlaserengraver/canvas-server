@@ -3,7 +3,7 @@ const Usb = require('./usb.js');
 const async = require('async');
 const testBitmaps = require('./testBitmaps.js');
 
-const usb = new Usb();
+const usb = new Usb(5*60*1000);
 
 const Gcode = require('./gcode.js');
 const gcode = new Gcode();
@@ -24,4 +24,10 @@ gcodeArray.unshift('M3S0') //turn laser on
 gcodeArray.push('M5'); //turn laser off
 
 //console.log(gcodeArray);
-usb.sendSync(gcodeArray);
+usb.sendSync(gcodeArray)
+  .then(() => {
+  	console.log('All good :)');
+  })
+  .catch((error) => {
+  	console.log('error '+error);
+  });
