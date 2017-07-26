@@ -2,20 +2,24 @@
 //const Usb = require('./usb.js');
 //const async = require('async');
 
-//global.usb = new Usb();
+//const usb = new Usb();
 
 const Gcode = require('./gcode.js');
 const gcode = new Gcode();
 
-global.gcodeArrayGlobal = []; //must be global so the callback has access to it
+let gcodeArray = []; 
 
-gcodeArrayGlobal = gcode.planar(gcode.testBitmap, 10);
+console.log(gcode.startupScript());
 
-gcodeArrayGlobal.unshift('M3 S0'); //turn laser mode on at power 0
-gcodeArrayGlobal.unshift('$X'); //turn laser mode on at power 0
-gcodeArrayGlobal.push('M5'); //turn laser off
+console.log(gcode.moveToStart(100,50));//planar
+//console.log(gcode.moveToStart(100,50,10));//cylindrical
 
-console.log(gcodeArrayGlobal);
-//usb.send(gcodeArrayGlobal.shift());
+gcodeArray = gcode.planar(gcode.testBitmap, 10, 50);
+//gcodeArray = gcode.cylindrical(gcode.testBitmap, 10, 10);
 
+gcodeArray.unshift('M3S0') //turn laser on
 
+gcodeArray.push('M5'); //turn laser off
+
+console.log(gcodeArray);
+//usb.send(gcodeArray);
