@@ -39,17 +39,22 @@ module.exports = class Usb {
     if (this.resolves.length!==0 && this.rejects.length!==0 && this.timeouts.length!==0) {
       if (data.match(/^(o|ok)\s*$/m) !== null) { // Successful command
         console.log('resolving with data: '+data.trim());
-        this.resolves[0](data);
+        let resolve = this.resolves[0];
+        this.timeouts.shift();
+        this.resolves.shift();
+        this.rejects.shift();
+        resolve(data);
       } else if (data.match(/^error:(\d+)\s*$/m) !== null) { // General error
         console.log('rejecting with data: '+data.trim());
-        this.rejects[0](Error(data));
+        let reject = this.rejects[0];
+        this.timeouts.shift();
+        this.resolves.shift();
+        this.rejects.shift();
+        reject(Error(data));
       } else { // Ignore
         console.log('invalid: '+data);
         return;
       }
-      this.timeouts.shift();
-      this.resolves.shift();
-      this.rejects.shift();
     }
   }
 
@@ -60,10 +65,13 @@ module.exports = class Usb {
   }
 
   handleTimeout() {
-    this.rejects[0](Error('timeout'));
-    this.timeouts.shift();
-    this.resolves.shift();
-    this.rejects.shift();
+    if (this.resolves.length!==0 && this.rejects.length!==0 && this.timeouts.length!==0) {
+      let reject = rejects[0];
+      this.timeouts.shift();
+      this.resolves.shift();
+      this.rejects.shift();
+      reject(Error('timeout'));
+    }
   }
 
   send(data) {
