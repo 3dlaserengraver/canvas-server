@@ -7,14 +7,18 @@ const app = express();
 const usb = new Usb(5*60*1000);
 const gcode = new Gcode();
 
+function startup() {
+  usb.sendSync(gcode.startup()) // TODO: Remove for prod
+    .then(() => {
+      console.log('successfully configured usb');
+    })
+    .catch((error) => {
+      console.log('failed to configure usb '+error);
+    });
+}
 
-usb.sendSync(gcode.startup()) // TODO: Remove for prod
-  .then(() => {
-    console.log('successfully configured usb');
-  })
-  .catch((error) => {
-    console.log('failed to configure usb '+error);
-  });
+usb.onReset = startup; // Called upon STM reset
+startup();
 
 app.use(express.static('public'));
 app.use(bodyParser.json({limit: '5mb'}));

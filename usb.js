@@ -4,7 +4,6 @@ module.exports = class Usb {
   constructor(ttl=3000) {
     this.port = '/dev/ttyUSB0';
     this.ttl = ttl;
-    this.ttl = ttl;
     this.timeouts = [];
     this.resolves = [];
     this.rejects = [];
@@ -32,14 +31,18 @@ module.exports = class Usb {
 
   readCallback() {
     var data = this.serialPort.read().toString();
+    if (data.match(/^error:7\s*$/) !== null) { // System reset
+      if (this.onReset !== undefined) this.onReset();
+      return;
+    }
     if (this.resolves.length!==0 && this.rejects.length!==0 && this.timeouts.length!==0) {
-      if (data.match(/^(o|ok)\s*$/) !== null) {
+      if (data.match(/^(o|ok)\s*$/) !== null) { // Successful command
         console.log('resolving with data: '+data.trim());
         this.resolves[0](data);
-      } else if (data.match(/^error:(\d+)\s*$/) !== null) {
+      } else if (data.match(/^error:(\d+)\s*$/) !== null) { // General error
         console.log('rejecting with data: '+data.trim());
         this.rejects[0](Error(data));
-      } else {
+      } else { // Ignore
         console.log('invalid: '+data);
         return;
       }
