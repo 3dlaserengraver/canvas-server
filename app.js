@@ -7,12 +7,12 @@ const usb = new Usb();
 const gcode = new Gcode();
 
 
-usb.send(gcode.config()) // TODO: Remove for prod
+usb.sendSync(gcode.config()) // TODO: Remove for prod
   .then(() => {
     console.log('successfully configured usb');
   })
-  .catch(() => {
-    console.log('failed to configure usb');
+  .catch((error) => {
+    console.log('failed to configure usb'+error);
   });
 
 app.use(express.static('public'));
@@ -28,7 +28,7 @@ app.post('/upload', function (req, res) {
   }
   let gcodeArray = gcode.planar(gcode.testBitmap);
   gcodeArray.forEach((gcodeString) => {
-    usb.send(gcodeString)
+    usb.sendSync(gcodeString)
       .then(() => {
         res.send('Sent G-code');
       })
@@ -46,8 +46,8 @@ app.post('/send', function (req, res) {
     return;
   }
   usb.send(req.body.gcode)
-    .then(() => {
-      res.send(req.body.gcode);
+    .then((data) => {
+      res.send(data);
     })
     .catch((error) => {
       res.status(400);

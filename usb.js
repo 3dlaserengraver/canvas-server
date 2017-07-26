@@ -36,7 +36,7 @@ module.exports = class Usb {
     this.clearTimeout();
     if (this.resolves.length!==0 && this.rejects.length!==0) {
       if (data.match(/^(o|ok)$/) !== null) {
-        this.resolves[0]();
+        this.resolves[0](data);
       } else if (data.match(/^error:(\d+)$/) !== null) {
         this.rejects[0](Error(data));
       } // Ignore anything not matching above formats
