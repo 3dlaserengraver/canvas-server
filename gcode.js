@@ -95,9 +95,9 @@ module.exports = class Gcode {
 
   planar(bitmap, size, height=0) {
     this.bitMapSize = bitmap.length;
-    let bmZ = 0;//height + this.laserFocalDistance;
+    let bmZ = 0;
     let gcodeArray = ['M3S0'];
-    
+
     for(let bmY=0; bmY<bitmap.length; bmY++) {
       let power = 0;
       for(let bmX=0; bmX<bitmap[bmY].length+1; bmX++) {
@@ -128,7 +128,7 @@ cylindrical(bitmap, height, size, diameter) {
         power = bitmap[bmY][bmX];
         moveAngle = 0;
       }
-    } 
+    }
     moveAngle++;
     // bmY++;
 

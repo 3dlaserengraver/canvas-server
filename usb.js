@@ -4,7 +4,9 @@ module.exports = class Usb {
   constructor(ttl=3000) {
     this.port = '/dev/ttyUSB0';
     this.ttl = ttl;
-    this.resetPromises();
+    this.timeouts = [];
+    this.resolves = [];
+    this.rejects = [];
     this.options = {baudRate: 115200};
     this.serialPort = new SerialPort(this.port, this.options);
     this.serialPort.on('error', this.errorCallback.bind(this));
