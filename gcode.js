@@ -97,12 +97,12 @@ module.exports = class Gcode {
     this.bitMapSize = bitmap.length;
     let bmZ = 0;//height + this.laserFocalDistance;
     let gcodeArray = [];
-    
+
     for(let bmY=0; bmY<bitmap.length; bmY++) {
       let power = 0;
       for(let bmX=0; bmX<bitmap[bmY].length+1; bmX++) {
         if (bitmap[bmY][bmX] !== power) {
-          if (bitmap[bmY][bmX]===undefined && power===0) break;
+          if (typeof bitmap[bmY][bmX]==='undefined' && power===0) break;
           gcodeArray.push(this.gcode(power, bmX, this.invertCoordinate(bitmap.length, bmY), bmZ, size));
           power = bitmap[bmY][bmX];
         }
@@ -112,7 +112,7 @@ module.exports = class Gcode {
       // if (typeof bitmap[bmY] === 'undefined') break;
       // for(let bmX=bitmap[bmY].length; bmX>=0; bmX--) {
       //   if (bitmap[bmY][bmX] !== power) {
-      //     if (bitmap[bmY][bmX]===undefined && power===0) break;
+      //     if (typeof bitmap[bmY][bmX]==='undefined' && power===0) break;
       //     gcodeArray.push('back');
       //     gcodeArray.push(this.gcode(power, bmX, this.invertCoordinate(bitmap.length, bmY), bmZ));
       //     power = bitmap[bmY][bmX];
@@ -129,12 +129,12 @@ cylindrical(bitmap, height, size, diameter) {
   let radius = diameter/2;
   let moveAngle = this.maxMoveAngle;
   let bmZ = height;
-  
+
   for(let bmY=0; bmY<bitmap.length; bmY++){
     let power = 0;
     for(let bmX = 0; bmX<bitmap[bmY].length+1; bmX++){
       if(bitmap[bmY][bmX] !== power || (moveAngle < this.maxMoveAngle && power > 0)){
-        if(bitmap[bmY][bmX]===undefined && power===0) break;
+        if(typeof bitmap[bmY][bmX]==='undefined' && power===0) break;
         gcodeArray.push(this.gcode(power, bmX, bmY, bmZ, size, radius));
         power = bitmap[bmY][bmX];
         moveAngle = 0;
@@ -145,7 +145,7 @@ cylindrical(bitmap, height, size, diameter) {
 
     // for(let bmX = bitmap[bmY]; bmX<bitmap[bmY].length+1; bmX--){
     //   if(bitmap[bmY][bmX] !== power || moveAngle < this.maxMoveAngle){
-    //     if(bitmap[bmX][bmY]===undefined && power===0) break;
+    //     if(typeof bitmap[bmX][bmY]==='undefined' && power===0) break;
     //     gcodeArray.push(this.gcode(power, bmX, bmY, bmZ, radius));
     //     power = bitmap[bmY][bmX];
     //     moveAngle = 0;

@@ -33,7 +33,7 @@ module.exports = class Usb {
     var data = this.serialPort.read().toString();
     if (data.match(/^error:7\s*$/m) !== null) { // System reset
       console.log('should reset');
-      if (this.onReset !== undefined) this.onReset();
+      if (typeof this.onReset !== 'undefined') this.onReset();
       return;
     }
     if (this.resolves.length!==0 && this.rejects.length!==0 && this.timeouts.length!==0) {
