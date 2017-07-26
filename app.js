@@ -33,8 +33,8 @@ app.post('/upload', function (req, res) {
       res.send('Sent G-code');
     })
     .catch((error) => {
-      res.status(400);
-      res.send(error);
+      res.status(500);
+      res.send(error.message); // Frontend want response as a string
     });
 });
 
@@ -49,8 +49,7 @@ app.post('/send', function (req, res) {
       res.send(data);
     })
     .catch((error) => {
-      res.status(400);
-      res.send(error);
+      res.send(error.message); // Frontend wants the response as a string regardless of failure
     });
 });
 
