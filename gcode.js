@@ -93,9 +93,9 @@ module.exports = class Gcode {
     return gcodeArray;
   }
 
-  planar(bitmap, height=0, size) {
+  planar(bitmap, size, height=0) {
     this.bitMapSize = bitmap.length;
-    let bmZ = 0;//height + this.laserFocalDistance;
+    let bmZ = 0;
     let gcodeArray = [];
 
     for(let bmY=0; bmY<bitmap.length; bmY++) {
@@ -107,18 +107,6 @@ module.exports = class Gcode {
           power = bitmap[bmY][bmX];
         }
       }
-      // power = undefined;
-      // bmY++;
-      // if (typeof bitmap[bmY] === 'undefined') break;
-      // for(let bmX=bitmap[bmY].length; bmX>=0; bmX--) {
-      //   if (bitmap[bmY][bmX] !== power) {
-      //     if (typeof bitmap[bmY][bmX]==='undefined' && power===0) break;
-      //     gcodeArray.push('back');
-      //     gcodeArray.push(this.gcode(power, bmX, this.invertCoordinate(bitmap.length, bmY), bmZ));
-      //     power = bitmap[bmY][bmX];
-      //   }
-      // }
-      // power = 0;
     }
     return gcodeArray;
   }

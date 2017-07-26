@@ -31,7 +31,7 @@ app.post('/upload', function (req, res) {
     res.send('Invalid bitmap');
     return;
   }
-  let gcodeArray = gcode.planar(req.body.bitmap,0,100);//(testbitmap[0]);
+  let gcodeArray = gcode.planar(req.body.bitmap, 100, 0);
   usb.sendSync(gcodeArray)
     .then(() => {
       res.send('Sent G-code');
