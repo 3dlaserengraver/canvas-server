@@ -66,7 +66,7 @@ module.exports = class Usb {
 
   handleTimeout() {
     if (this.resolves.length!==0 && this.rejects.length!==0 && this.timeouts.length!==0) {
-      let reject = rejects[0];
+      let reject = this.rejects[0];
       this.timeouts.shift();
       this.resolves.shift();
       this.rejects.shift();
