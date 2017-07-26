@@ -4,7 +4,7 @@ const Usb = require('./usb.js');
 const Gcode = require('./gcode.js');
 const testBitmaps = require('./testBitmaps.js');
 const app = express();
-const usb = new Usb();
+const usb = new Usb(5*60*1000);
 const gcode = new Gcode();
 
 

@@ -40,6 +40,7 @@ module.exports = class Usb {
         console.log('rejecting with data: '+data.trim());
         this.rejects[0](Error(data));
       } else {
+        console.log('invalid: '+data);
         return;
       }
       this.timeouts.shift();
@@ -51,7 +52,14 @@ module.exports = class Usb {
   handlePromise(resolve, reject) {
     this.resolves.push(resolve);
     this.rejects.push(reject);
-    this.timeouts.push(setTimeout(reject, this.ttl, Error('timeout')));
+    this.timeouts.push(setTimeout(this.handleTimeout.bind(this), this.ttl));
+  }
+
+  handleReject() {
+    this.rejects[0](Error('timeout'));
+    this.timeouts.shift();
+    this.resolves.shift();
+    this.rejects.shift();
   }
 
   send(data) {
