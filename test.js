@@ -23,10 +23,12 @@ let gcodeArray = [];
 // gcodeArray.unshift('M3S0') //turn laser on
 gcodeArray = testGcodes[0];
 // gcodeArray.push('M5'); //turn laser off
-for(let i = 0; i<10;i++){
+for(let i = 0; i<20;i++){
 gcodeArray.push.apply(gcodeArray,testGcodes[1]);
 gcodeArray.push('G0Z'+i);
 gcodeArray.push.apply(gcodeArray,testGcodes[1].reverse());
+i++;
+gcodeArray.push('G0Z'+i);
 }
 console.log(gcodeArray);
 usb.sendSync(gcodeArray)
