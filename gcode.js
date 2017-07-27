@@ -4,9 +4,9 @@
 module.exports = class Gcode {
   constructor() {
     this.stepsToMm = {
-      x: 1/80,
-      y: 1/80,
-      z: 1000/91.5 //calibration based on the 150 steps/mm setting in grbl
+      x: (1/80)*(200/203),
+      y: (1/80)*(200/203.5),
+      z: (1000/91.5)*(200/18) //calibration based on the 150 steps/mm setting in grbl
     };
     this.G0feedRate = 1000;
     this.G1feedRate = 1000;
@@ -20,6 +20,7 @@ module.exports = class Gcode {
     this.bitMapSize = 500; //*** assumes square arrays
     this.roundTo = 3;
     this.aOffset = -8;
+    this.aCalibration = 362/360;
   }
 
   startup() { // TODO: Remove for prod
@@ -41,7 +42,7 @@ module.exports = class Gcode {
       let y = bmY * resize * this.stepsToMm.y;
       let z = bmZ * this.stepsToMm.z;
       if(power === 0)
-        return "G"+0+"X"+x+"Y"+y+"Z"+z+"F"+this.G0feedRate+"S0";
+        return "G"+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
       else
         return "G"+1+"F"+this.G1feedRate+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
 
@@ -54,7 +55,7 @@ module.exports = class Gcode {
       let x = (radius * Math.cos(a*Math.PI/180));
       let y = (radius * Math.sin(a*Math.PI/180));
       let z = (bmY * resizeZ * this.stepsToMm.z);
-      a = (a+180);
+      a = (a+180)*this.aCalibration;
 
       if(power === 0)
         return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"R"+radius+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
@@ -107,10 +108,10 @@ module.exports = class Gcode {
           power = bitmap[bmY][bmX];
         }
       }
-      // power = undefined;
+      //power = undefined;
       // bmY++;
-      // if (typeof bitmap[bmY] === 'undefined') break;
-      // for(let bmX=bitmap[bmY].length; bmX>=0; bmX--) {
+      // //if (typeof bitmap[bmY] === 'undefined') break;
+      // for(let bmX=bitmap[bmY].length; bmX>=-1; bmX--) {
       //   if (bitmap[bmY][bmX] !== power) {
       //     if (bitmap[bmY][bmX]===undefined && power===0) break;
       //     gcodeArray.push('back');
