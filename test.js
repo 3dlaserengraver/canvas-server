@@ -2,7 +2,7 @@ const bodyParser = require('body-parser');
 const Usb = require('./usb.js');
 const testBitmaps = require('./testBitmaps.js');
 
-const usb = new Usb(5*60*1000);
+const usb = new Usb();
 
 const Gcode = require('./gcode.js');
 const gcode = new Gcode();
