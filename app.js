@@ -13,7 +13,9 @@ function startup() {
     .then(() => {
       console.log('successfully configured usb');
     })
-    .cat
+    .catch((error) => {
+      console.log('failed to configure usb '+error);
+    });
 }
 
 usb.onReset = startup; // Called upon STM reset
@@ -30,7 +32,7 @@ app.post('/upload', function (req, res) {
     res.send('Invalid bitmap');
     return;
   }
-  let gcodeArray = gcode.planar(req.body.bitmap, 100, 0);
+  let gcodeArray = gcode.planar(req.body.bitmap, 50, 0);
   usb.sendSync(gcodeArray)
     .then(() => {
       console.log('Sent G-code');
