@@ -38,7 +38,7 @@ module.exports = class Gcode {
     return gcodeArray;
   }
 
-  gcode(power, bmX, bmY, bmZ, size, radius) {
+  gcode(power, bmX, bmY, bmZ, size, radius, wall) {
 
     if(typeof(radius) === 'undefined'){ //planar mode
       let resize = (size/this.stepsToMm.x)/this.bitMapSize;//* assumes we are getting a square array
@@ -50,6 +50,17 @@ module.exports = class Gcode {
       else
         return "G"+1+"F"+this.G1feedRate+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
 
+    }
+    else if(wall){
+      let resize = (size/this.stepsToMm.y)/this.bitMapSize;//* assumes we are getting a square array
+      let resizeZ = (size/this.stepsToMm.z)/this.bitMapSize;//*** assumes we are getting a square array
+      let x = 0;
+      let y = bmY * resize * this.stepsToMm.y;
+      let z = bmZ * this.stepsToMm.z;
+      if(power === 0)
+        return "G"+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
+      else
+        return "G"+1+"F"+this.G1feedRate+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
     }
     else{ //cylindar mode forcing it to do 360 degrees
       let resizeA = this.stepsPerRot/this.bitMapSize; //(size/this.stepsToDeg)/this.bitMapSize;
@@ -107,6 +118,34 @@ module.exports = class Gcode {
     gcodeArray.push('M5');
     gcodeArray.push("G10L2P1X0Y0Z0A"+this.aOffset);
     gcodeArray.push("G0X20Y20F"+G0feedRate+"S0");
+
+
+    return gcodeArray;
+  }
+
+wall(bitmap, size, height) {
+    this.bitMapSize = bitmap.length;
+    let bmZ = 0;
+    let gcodeArray = [];
+    //set coordinate system to bottom left of engraving
+    gcodeArray.push("G10L2P1X0Y0Z"+this.bitMapSize+"A"+this.aOffset);
+    gcodeArray.push("G54");
+    gcodeArray.push('M3S0');
+
+    for(let bmZ=bitmap.length; bmZ>=0; bmZ--) {
+      let power = 0;
+      for(let bmY=0; bmY<bitmap[bmZ].length+1; bmY++) {
+        if (bitmap[bmZ][bmY] !== power) {
+          if (typeof bitmap[bmZ][bmY]==='undefined' && power===0) break;
+          gcodeArray.push(this.gcode(power, bmX, bmY, this.invertCoordinate(bitmap.length, bmZ), size, 0,1));
+          power = bitmap[bmY][bmX];
+        }
+      }
+    }
+    gcodeArray.push('M5');
+    
+    
+
 
 
     return gcodeArray;

@@ -8,13 +8,6 @@ const usb = new Usb();
 const Gcode = require('./gcode.js');
 const gcode = new Gcode();
 
-usb.sendSync(gcode.startup()) // TODO: Remove for prod
-    .then(() => {
-      console.log('successfully configured usb');
-    })
-    .catch((error) => {
-      console.log('failed to configure usb '+error);
-
 let gcodeArray = gcode.startup();
 
 //console.log(gcode.startup());
@@ -29,15 +22,20 @@ let gcodeArray = gcode.startup();
 //console.log(gcodeArray);
 // gcodeArray.unshift('M3S0') //turn laser on
 
-gcodeArray.push.apply(gcodeArray, testGcodes[0]);
-// gcodeArray.push('M5'); //turn laser off
-for(let i = 0; i<20;i++){
-gcodeArray.push.apply(gcodeArray,testGcodes[1]);
-gcodeArray.push('G0Z'+i);
-gcodeArray.push.apply(gcodeArray,testGcodes[1].reverse());
-i++;
-gcodeArray.push('G0Z'+i);
-}
+gcodeArray.push.apply(gcodeArray, gcode.wall(testBitmaps[1], 10,0));
+//Partial arc test:
+// gcodeArray.push.apply(gcodeArray, testGcodes[0]);
+// // gcodeArray.push('M5'); //turn laser off
+// for(let i = 0; i<20;i++){
+// gcodeArray.push.apply(gcodeArray,testGcodes[1]);
+// gcodeArray.push('G0Z'+i);
+// gcodeArray.push.apply(gcodeArray,testGcodes[1].reverse());
+// i++;
+// gcodeArray.push('G0Z'+i);
+// }
+
+
+
 console.log(gcodeArray);
 
 usb.sendSync(gcodeArray)
@@ -47,3 +45,4 @@ usb.sendSync(gcodeArray)
   .catch((error) => {
   	console.log('error '+error);
   });
+
