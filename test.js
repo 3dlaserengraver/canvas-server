@@ -8,6 +8,13 @@ const usb = new Usb();
 const Gcode = require('./gcode.js');
 const gcode = new Gcode();
 
+usb.sendSync(gcode.startup()) // TODO: Remove for prod
+    .then(() => {
+      console.log('successfully configured usb');
+    })
+    .catch((error) => {
+      console.log('failed to configure usb '+error);
+
 let gcodeArray = [];
 
 //console.log(gcode.startup());

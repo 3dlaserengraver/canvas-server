@@ -1,6 +1,6 @@
 
 module.exports = [
-['$X',
+[
 'G0X297Y0F1000S0',
   'G0Y175A166F1000S0',
   'G10L2P1X192Y175Z0A-14',
