@@ -64,8 +64,10 @@ module.exports = class Gcode {
       let i = -x;
       let j = -y;
 
-      if(power === 0)
-        return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"I"+i+"J"+j+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
+      if(power === 0){
+        //return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"I"+i+"J"+j+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
+        return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"R"+radius+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
+      }
       else
         return "G"+1+"F"+this.G1feedRate+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
     }
@@ -138,6 +140,7 @@ cylindrical(bitmap, height, size, diameter) {
   y = this.yAbsCenter;
   let a = 180;
   gcodeArray.push("G"+0+"Y"+y+"A"+a+"F"+this.G0feedRate+"S0");
+  gcodeArray.push("G91.1")
 
   //set coordinate system to center
   gcodeArray.push("G10L2P1X"+this.xAbsCenter+"Y"+this.yAbsCenter+"Z0A"+this.aOffset);
