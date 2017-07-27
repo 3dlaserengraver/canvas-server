@@ -15,7 +15,7 @@ usb.sendSync(gcode.startup()) // TODO: Remove for prod
     .catch((error) => {
       console.log('failed to configure usb '+error);
 
-let gcodeArray = [];
+let gcodeArray = gcode.startup();
 
 //console.log(gcode.startup());
 
@@ -28,7 +28,8 @@ let gcodeArray = [];
 
 //console.log(gcodeArray);
 // gcodeArray.unshift('M3S0') //turn laser on
-gcodeArray = testGcodes[0];
+
+gcodeArray.push.apply(gcodeArray, testGcodes[0]);
 // gcodeArray.push('M5'); //turn laser off
 for(let i = 0; i<20;i++){
 gcodeArray.push.apply(gcodeArray,testGcodes[1]);
@@ -38,6 +39,7 @@ i++;
 gcodeArray.push('G0Z'+i);
 }
 console.log(gcodeArray);
+
 usb.sendSync(gcodeArray)
   .then(() => {
   	console.log('All good :)');

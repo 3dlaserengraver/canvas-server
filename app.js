@@ -13,9 +13,7 @@ function startup() {
     .then(() => {
       console.log('successfully configured usb');
     })
-    .catch((error) => {
-      console.log('failed to configure usb '+error);
-    });
+    .cat
 }
 
 usb.onReset = startup; // Called upon STM reset
