@@ -51,38 +51,38 @@ module.exports = class Gcode {
         return "G"+1+"F"+this.G1feedRate+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
 
     }
-    else {
-      console.log("wall");
-      let resize = (size/this.stepsToMm.y)/this.bitMapSize;//* assumes we are getting a square array
-      let resizeZ = (size/this.stepsToMm.z)/this.bitMapSize;//*** assumes we are getting a square array
-      let x = 0;
-      let y = bmY * resize * this.stepsToMm.y;
-      let z = bmZ * this.stepsToMm.z;
-      if(power === 0)
-        return "G"+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
-      else
-        return "G"+1+"F"+this.G1feedRate+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
-    }
-    // else{ //cylindar mode forcing it to do 360 degrees
-    //   let resizeA = this.stepsPerRot/this.bitMapSize; //(size/this.stepsToDeg)/this.bitMapSize;
+    // else {
+    //   console.log("wall");
+    //   let resize = (size/this.stepsToMm.y)/this.bitMapSize;//* assumes we are getting a square array
     //   let resizeZ = (size/this.stepsToMm.z)/this.bitMapSize;//*** assumes we are getting a square array
-    //   radius = radius + this.laserFocalDistance + this.laserTipOffset;
-    //   let a = (bmX * resizeA * this.stepsToDeg);
-    //   let x = (radius * Math.cos(a*Math.PI/180));
-    //   let y = (radius * Math.sin(a*Math.PI/180));
-    //   let z = (bmY * resizeZ * this.stepsToMm.z);
-    //   a = (a+180);
-
-    //   // let i = -x;
-    //   // let j = -y;
-
-    //   if(power === 0){
-    //     //return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"I"+i+"J"+j+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
-    //     return "G"+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
-    //   }
+    //   let x = 0;
+    //   let y = bmY * resize * this.stepsToMm.y;
+    //   let z = bmZ * this.stepsToMm.z;
+    //   if(power === 0)
+    //     return "G"+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
     //   else
-    //     return "G"+1+"F"+this.G1feedRate+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
-    //}
+    //     return "G"+1+"F"+this.G1feedRate+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
+    // }
+    else{ //cylindar mode forcing it to do 360 degrees
+      let resizeA = this.stepsPerRot/this.bitMapSize; //(size/this.stepsToDeg)/this.bitMapSize;
+      let resizeZ = (size/this.stepsToMm.z)/this.bitMapSize;//*** assumes we are getting a square array
+      radius = radius + this.laserFocalDistance + this.laserTipOffset;
+      let a = (bmX * resizeA * this.stepsToDeg);
+      let x = (radius * Math.cos(a*Math.PI/180));
+      let y = (radius * Math.sin(a*Math.PI/180));
+      let z = (bmY * resizeZ * this.stepsToMm.z);
+      a = (a+180);
+
+      // let i = -x;
+      // let j = -y;
+
+      if(power === 0){
+        //return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"I"+i+"J"+j+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
+        return "G"+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
+      }
+      else
+        return "G"+1+"F"+this.G1feedRate+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
+    }
   }
 
   lineStart(row, start) {
@@ -124,33 +124,38 @@ module.exports = class Gcode {
     return gcodeArray;
   }
 
-wall(bitmap, size, height) {
-    this.bitMapSize = bitmap.length;
-    let gcodeArray = [];
- 
-    gcodeArray.push("$X");
-    gcodeArray.push("G10L2P1X0Y0Z"+this.bitMapSize+"A"+this.aOffset);
-    gcodeArray.push("G54");
-    gcodeArray.push('M3S0');
+// wall(bitmap, size, height) {
+//     this.bitMapSize = bitmap.length;
+//     let gcodeArray = [];
+//     let bmX =0;
 
-    for(let bmZ=0; bmZ<bitmap.length; bmZ++) {
-      let power = 0;
-      for(let bmY=0; bmY<bitmap.length[bmZ]+1; bmY++) {
-        if (bitmap[bmZ][bmY] !== power) {
-          if (typeof bitmap[bmZ][bmY]==='undefined' && power===0) break;
-          gcodeArray.push(this.gcode(power, bmX, bmY, this.invertCoordinate(bitmap.length, bmZ), size,1));
-          power = bitmap[bmY][bmX];
-        }
-      }
-    }
-    gcodeArray.push('M5');
+//     console.log(bitmap);
+// console.log(bitmap.length);
+// console.log(bitmap[0].length);
 
-    
+//     gcodeArray.push("$X");
+//     gcodeArray.push("G10L2P1X0Y0Z"+this.bitMapSize+"A"+this.aOffset);
+//     gcodeArray.push("G54");
+//     gcodeArray.push('M3S0');
 
+//     for(let bmZ=0; bmZ<bitmap.length; bmZ++) {
+//       let power = 0;
+//       console.log(power);
+//       for(let bmY=0; bmY<bitmap[0].length+1; bmY++) {
+//         console.log(bitmap[bmZ][bmY]);
+//         if (bitmap[bmZ][bmY] !== power) {
+//           console.log("first if");
+//           if (typeof bitmap[bmZ][bmY]==='undefined' && power===0) break;
+//           gcodeArray.push(this.gcode(power, bmX, bmY, this.invertCoordinate(bitmap.length, bmZ), size,1));
+//           power = bitmap[bmZ][bmY];
+//         }
+//       }
+//     }
 
+//     //gcodeArray.push('M5');
 
-    return gcodeArray;
-  }
+//     return gcodeArray;
+//   }
 
 cylindrical(bitmap, size, height, diameter) {
   this.bitMapSize = bitmap.length;
