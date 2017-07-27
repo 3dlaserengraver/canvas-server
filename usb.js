@@ -1,10 +1,8 @@
 const SerialPort = require('serialport');
 
 module.exports = class Usb {
-  constructor(ttl=3000) {
+  constructor() {
     this.port = '/dev/ttyUSB0';
-    this.ttl = ttl;
-    this.timeouts = [];
     this.resolves = [];
     this.rejects = [];
     this.options = {baudRate: 115200};
@@ -56,17 +54,11 @@ module.exports = class Usb {
   }
 
   shiftPromises() {
-    clearTimeout(this.timeouts[0]);
-    this.timeouts.shift();
     this.resolves.shift();
     this.rejects.shift();
   }
 
   resetPromises() {
-    this.timeouts.forEach((timeout) => {
-      clearTimeout(timeout);
-    });
-    this.timeouts = [];
     this.resolves = [];
     this.rejects = [];
   }
@@ -74,17 +66,6 @@ module.exports = class Usb {
   handlePromise(resolve, reject) {
     this.resolves.push(resolve);
     this.rejects.push(reject);
-    this.timeouts.push(setTimeout(this.handleTimeout.bind(this), this.ttl));
-  }
-
-  handleTimeout() {
-    if (this.resolves.length!==0 && this.rejects.length!==0 && this.timeouts.length!==0) {
-      let reject = this.rejects[0];
-      this.timeouts.shift();
-      this.resolves.shift();
-      this.rejects.shift();
-      reject(Error('timeout'));
-    }
   }
 
   send(data) {
