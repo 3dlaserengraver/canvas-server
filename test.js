@@ -1,7 +1,7 @@
 const bodyParser = require('body-parser');
 const Usb = require('./usb.js');
 const testBitmaps = require('./testBitmaps.js');
-const testBitmaps = require('./testGcodes.js');
+const testGcodes = require('./testGcodes.js');
 
 const usb = new Usb();
 
@@ -24,9 +24,9 @@ let gcodeArray = [];
 gcodeArray = testGcodes[0];
 // gcodeArray.push('M5'); //turn laser off
 for(let i = 0; i<10;i++){
-gcodeArray.push.apply(testGcodes[1]);
+gcodeArray.push.apply(gcodeArray,testGcodes[1]);
 gcodeArray.push('G0Z'+i);
-gcodeArray.push.apply(testGcodes[1].reverse());
+gcodeArray.push.apply(gcodeArray,testGcodes[1].reverse());
 }
 console.log(gcodeArray);
 usb.sendSync(gcodeArray)
