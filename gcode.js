@@ -4,28 +4,32 @@
 module.exports = class Gcode {
   constructor() {
     this.stepsToMm = {
-      x: (1/80)*(200/203),
-      y: (1/80)*(200/203.5),
-      z: (1000/91.5)*(200/18) //calibration based on the 150 steps/mm setting in grbl
+      x: (1/78.828),//*(200/203),
+      y: (1/78.624),//*(200/203.5),
+      z: (1000/91.5) //calibration based on the 150 steps/mm setting in grbl
     };
     this.G0feedRate = 1000;
     this.G1feedRate = 1000;
     this.xAbsCenter = 194; //mm
     this.yAbsCenter = 175; //mm
     this.laserFocalDistance = 50;
+    this.laserTipOffset = 40;
     this.maxMoveAngle = 114; //~ 10 degrees
-    this.stepsPerRot = 4096;
+    this.stepsPerRot = 4126.8;
     this.halfASteps = this.stepsPerRot/2;
     this.stepsToDeg = 360/this.stepsPerRot;
     this.bitMapSize = 500; //*** assumes square arrays
     this.roundTo = 3;
     this.aOffset = -8;
-    this.aCalibration = 362/360;
+
   }
 
   startup() { // TODO: Remove for prod
     let gcodeArray =  [ '$X',
                         'M5',
+                        '$100=78.828',
+                        '$101=78.624',
+                        '$103=12',
                         //"G10L2P1X200Y300A"+(this.aOffset+359.912),
                         //'G54',
                         //'G0X20Y20F'+this.G0feedRate+'S0',
@@ -55,7 +59,10 @@ module.exports = class Gcode {
       let x = (radius * Math.cos(a*Math.PI/180));
       let y = (radius * Math.sin(a*Math.PI/180));
       let z = (bmY * resizeZ * this.stepsToMm.z);
-      a = (a+180)*this.aCalibration;
+      a = (a+180);
+
+      let i = 
+      let j = 
 
       if(power === 0)
         return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"R"+radius+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
@@ -84,12 +91,15 @@ module.exports = class Gcode {
       gcodeArray.push("G"+0+"X"+x+"Y"+y+"Z"+z+"F"+this.G0feedRate+"S0");
     }
     else{ //cylindrical
-      let x = this.xAbsCenter +diameter/2 + this.laserFocalDistance;
+      let x = this.xAbsCenter +diameter/2 + this.laserFocalDistance+this.laserTipOffset;
       let y = 0;
       gcodeArray.push("G"+0+"X"+x+"Y"+y+"F"+this.G0feedRate+"S0");
       y = this.yAbsCenter;
       let a = 180;
-      gcodeArray.push("G"+0+"Y"+y+"A"+a+"F"+this.G0feedRate+"S0")
+      gcodeArray.push("G"+0+"Y"+y+"A"+a+"F"+this.G0feedRate+"S0");
+
+      gcodeArray.push("G10L2P1X"+this.xAbsCenter+"Y"+this.yAbsCenter+"Z0A"+this.aOffset);
+      gcodeArray.push("G54");
     }
     return gcodeArray;
   }
@@ -119,6 +129,18 @@ cylindrical(bitmap, height, size, diameter) {
   let radius = diameter/2;
   let moveAngle = this.maxMoveAngle;
   let bmZ = height;
+
+  //Move to start location
+  let x = this.xAbsCenter + radius + this.laserFocalDistance+this.laserTipOffset;
+  let y = 0;
+  gcodeArray.push("G"+0+"X"+x+"Y"+y+"F"+this.G0feedRate+"S0");
+  y = this.yAbsCenter;
+  let a = 180;
+  gcodeArray.push("G"+0+"Y"+y+"A"+a+"F"+this.G0feedRate+"S0");
+
+  //set coordinate system to center
+  gcodeArray.push("G10L2P1X"+this.xAbsCenter+"Y"+this.yAbsCenter+"Z0A"+this.aOffset);
+  gcodeArray.push("G54");
 
   for(let bmY=0; bmY<bitmap.length; bmY++){
     let power = 0;
