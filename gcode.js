@@ -48,7 +48,7 @@ module.exports = class Gcode {
       if(power === 0)
         return "G"+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
       else
-        return "G"+1+"F"+this.G1feedRate+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
+        return "G"+1+"F"+this.G1feedRate+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
 
     }
     else{ //cylindar mode forcing it to do 360 degrees
@@ -69,7 +69,7 @@ module.exports = class Gcode {
         return "G"+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
       }
       else
-        return "G"+1+"F"+this.G1feedRate+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
+        return "G"+1+"F"+this.G1feedRate+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
     }
   }
 
