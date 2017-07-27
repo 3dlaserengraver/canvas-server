@@ -20,7 +20,7 @@ module.exports = class Gcode {
     this.stepsToDeg = 360/this.stepsPerRot;
     this.bitMapSize = 500; //*** assumes square arrays
     this.roundTo = 3;
-    this.aOffset = -8;
+    this.aOffset = -14; //-8
 
   }
 
@@ -61,8 +61,8 @@ module.exports = class Gcode {
       let z = (bmY * resizeZ * this.stepsToMm.z);
       a = (a+180);
 
-      let i = x;
-      let j = y;
+      let i = -x;
+      let j = -y;
 
       if(power === 0)
         return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"I"+i+"J"+j+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
