@@ -14,13 +14,12 @@ module.exports = class Gcode {
     this.yAbsCenter = 175; //mm
     this.laserFocalDistance = 50;
     this.maxMoveAngle = 114; //~ 10 degrees
-    this.stepsPerRot = 4096;
+    this.stepsPerRot = 4126.8;
     this.halfASteps = this.stepsPerRot/2;
     this.stepsToDeg = 360/this.stepsPerRot;
     this.bitMapSize = 500; //*** assumes square arrays
     this.roundTo = 3;
     this.aOffset = -8;
-    this.aCalibration = 362/360;
   }
 
   startup() { // TODO: Remove for prod
@@ -58,7 +57,7 @@ module.exports = class Gcode {
       let x = (radius * Math.cos(a*Math.PI/180));
       let y = (radius * Math.sin(a*Math.PI/180));
       let z = (bmY * resizeZ * this.stepsToMm.z);
-      a = (a+180)*this.aCalibration;
+      a = (a+180);
 
       if(power === 0)
         return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"R"+radius+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
