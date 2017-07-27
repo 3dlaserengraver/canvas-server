@@ -10,7 +10,7 @@ module.exports = class Gcode {
     };
     this.G0feedRate = 1000;
     this.G1feedRate = 1000;
-    this.xAbsCenter = 194; //mm
+    this.xAbsCenter = 192; //mm
     this.yAbsCenter = 175; //mm
     this.laserFocalDistance = 50;
     this.laserTipOffset = 40;
@@ -51,22 +51,22 @@ module.exports = class Gcode {
         return "G"+1+"F"+this.G1feedRate+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
 
     }
-    else{ //cylindar mode
-      let resizeA = (size/this.stepsToDeg)/this.bitMapSize;
+    else{ //cylindar mode forcing it to do 360 degrees
+      let resizeA = this.stepsPerRot/this.bitMapSize; //(size/this.stepsToDeg)/this.bitMapSize;
       let resizeZ = (size/this.stepsToMm.z)/this.bitMapSize;//*** assumes we are getting a square array
-      radius = radius + this.laserFocalDistance;
+      radius = radius + this.laserFocalDistance + this.laserTipOffset;
       let a = (bmX * resizeA * this.stepsToDeg);
       let x = (radius * Math.cos(a*Math.PI/180));
       let y = (radius * Math.sin(a*Math.PI/180));
       let z = (bmY * resizeZ * this.stepsToMm.z);
       a = (a+180);
 
-      let i = -x;
-      let j = -y;
+      // let i = -x;
+      // let j = -y;
 
       if(power === 0){
         //return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"I"+i+"J"+j+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
-        return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"R"+radius+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
+        return "G"+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
       }
       else
         return "G"+1+"F"+this.G1feedRate+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
@@ -84,33 +84,15 @@ module.exports = class Gcode {
     return (max - 1 - coordinate);
   }
 
-  moveToStart(height, size, diameter){
-    let gcodeArray = [];
-    if(typeof(diameter) === 'undefined'){ //planar
-      let x = this.xAbsCenter - size/2;
-      let y = this.yAbsCenter - size/2;
-      let z = height;
-      gcodeArray.push("G"+0+"X"+x+"Y"+y+"Z"+z+"F"+this.G0feedRate+"S0");
-    }
-    else{ //cylindrical
-      let x = this.xAbsCenter +diameter/2 + this.laserFocalDistance+this.laserTipOffset;
-      let y = 0;
-      gcodeArray.push("G"+0+"X"+x+"Y"+y+"F"+this.G0feedRate+"S0");
-      y = this.yAbsCenter;
-      let a = 180;
-      gcodeArray.push("G"+0+"Y"+y+"A"+a+"F"+this.G0feedRate+"S0");
 
-      gcodeArray.push("G10L2P1X"+this.xAbsCenter+"Y"+this.yAbsCenter+"Z0A"+this.aOffset);
-      gcodeArray.push("G54");
-    }
-    return gcodeArray;
-  }
-
-  planar(bitmap, size, height=0) {
+  planar(bitmap, size, height) {
     this.bitMapSize = bitmap.length;
     let bmZ = 0;
-    let gcodeArray = ['M3S0'];
-    //TODO place work coordinates at correct location for input size
+    let gcodeArray = [];
+    //set coordinate system to bottom left of engraving
+    gcodeArray.push("G10L2P1X"+(this.xAbsCenter-size/2)+"Y"+(this.yAbsCenter-size/2)+"Z0A"+this.aOffset);
+    gcodeArray.push("G54");
+    gcodeArray.push('M3S0');
 
     for(let bmY=0; bmY<bitmap.length; bmY++) {
       let power = 0;
@@ -123,10 +105,14 @@ module.exports = class Gcode {
       }
     }
     gcodeArray.push('M5');
+    gcodeArray.push("G10L2P1X0Y0Z0A"+this.aOffset);
+    gcodeArray.push("G0X20Y20F"+G0feedRate+"S0");
+
+
     return gcodeArray;
   }
 
-cylindrical(bitmap, height, size, diameter) {
+cylindrical(bitmap, size, height, diameter) {
   this.bitMapSize = bitmap.length;
   let gcodeArray = [];
   let radius = diameter/2;
@@ -138,27 +124,27 @@ cylindrical(bitmap, height, size, diameter) {
   let y = 0;
   gcodeArray.push("G"+0+"X"+x+"Y"+y+"F"+this.G0feedRate+"S0");
   y = this.yAbsCenter;
-  let a = 180;
+  let a = 180+this.aOffset; //***might be -?
   gcodeArray.push("G"+0+"Y"+y+"A"+a+"F"+this.G0feedRate+"S0");
-  gcodeArray.push("G91.1")
-
-  //set coordinate system to center
+  //gcodeArray.push("G91.1")
   gcodeArray.push("G10L2P1X"+this.xAbsCenter+"Y"+this.yAbsCenter+"Z0A"+this.aOffset);
   gcodeArray.push("G54");
+  gcodeArray.push('M3S0');
 
   for(let bmY=0; bmY<bitmap.length; bmY++){
     let power = 0;
     for(let bmX = 0; bmX<bitmap[bmY].length+1; bmX++){
-      if(bitmap[bmY][bmX] !== power || (moveAngle < this.maxMoveAngle && power > 0)){
+      if(bitmap[bmY][bmX] !== power || (moveAngle < this.maxMoveAngle)){ //&& power > 0)){
         if(typeof bitmap[bmY][bmX]==='undefined' && power===0) break;
-        gcodeArray.push(this.gcode(power, bmX, bmY, bmZ, size, radius));
+        gcodeArray.push(this.gcode(power, bmX*(1+bmY), bmY, bmZ, size, radius));
         power = bitmap[bmY][bmX];
         moveAngle = 0;
       }
     }
     moveAngle++;
   }
-  //set coordinate system to center
+  //turn laser off and set coordinate system to center
+  gcodeArray.push('M5');
   gcodeArray.push("G10L2P1X0Y0Z0A"+this.aOffset);
 
   return gcodeArray;
