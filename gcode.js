@@ -61,8 +61,8 @@ module.exports = class Gcode {
       let z = (bmY * resizeZ * this.stepsToMm.z);
       a = (a+180);
 
-      let i = 
-      let j = 
+      // let i = 
+      // let j =
 
       if(power === 0)
         return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"R"+radius+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";

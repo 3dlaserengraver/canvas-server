@@ -35,7 +35,7 @@ module.exports = class Usb {
       if (typeof this.onReset !== 'undefined') this.onReset();
       return;
     }
-    if (this.resolves.length!==0 && this.rejects.length!==0 && this.timeouts.length!==0) {
+    if (this.resolves.length!==0 && this.rejects.length!==0) {
       if (data.match(/^(o|ok)\s*$/m) !== null) { // Successful command
         console.log('resolving with data: '+data.trim());
         let resolve = this.resolves[0];
