@@ -20,7 +20,7 @@ module.exports = class Gcode {
     this.stepsToDeg = 360/this.stepsPerRot;
     this.bitMapSize = 500; //*** assumes square arrays
     this.roundTo = 3;
-    this.aOffset = -8;
+    this.aOffset = -14; //-8
 
   }
 
@@ -61,11 +61,13 @@ module.exports = class Gcode {
       let z = (bmY * resizeZ * this.stepsToMm.z);
       a = (a+180);
 
-      // let i = 
-      // let j =
+      let i = -x;
+      let j = -y;
 
-      if(power === 0)
+      if(power === 0){
+        //return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"I"+i+"J"+j+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
         return "G"+3+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"R"+radius+"A"+a.toFixed(this.roundTo)+"F"+this.G0feedRate+"S0";
+      }
       else
         return "G"+1+"F"+this.G1feedRate+0+"X"+x.toFixed(this.roundTo)+"Y"+y.toFixed(this.roundTo)+"Z"+z.toFixed(this.roundTo)+"A"+a.toFixed(this.roundTo)+"S"+Math.round(power*1000/255);
     }
@@ -108,6 +110,7 @@ module.exports = class Gcode {
     this.bitMapSize = bitmap.length;
     let bmZ = 0;
     let gcodeArray = ['M3S0'];
+    //TODO place work coordinates at correct location for input size
 
     for(let bmY=0; bmY<bitmap.length; bmY++) {
       let power = 0;
@@ -137,6 +140,7 @@ cylindrical(bitmap, height, size, diameter) {
   y = this.yAbsCenter;
   let a = 180;
   gcodeArray.push("G"+0+"Y"+y+"A"+a+"F"+this.G0feedRate+"S0");
+  gcodeArray.push("G91.1")
 
   //set coordinate system to center
   gcodeArray.push("G10L2P1X"+this.xAbsCenter+"Y"+this.yAbsCenter+"Z0A"+this.aOffset);
@@ -153,18 +157,10 @@ cylindrical(bitmap, height, size, diameter) {
       }
     }
     moveAngle++;
-    // bmY++;
-
-    // for(let bmX = bitmap[bmY]; bmX<bitmap[bmY].length+1; bmX--){
-    //   if(bitmap[bmY][bmX] !== power || moveAngle < this.maxMoveAngle){
-    //     if(typeof bitmap[bmX][bmY]==='undefined' && power===0) break;
-    //     gcodeArray.push(this.gcode(power, bmX, bmY, bmZ, radius));
-    //     power = bitmap[bmY][bmX];
-    //     moveAngle = 0;
-    //   }
-    //   moveAngle++;
-    // }
   }
+  //set coordinate system to center
+  gcodeArray.push("G10L2P1X0Y0Z0A"+this.aOffset);
+
   return gcodeArray;
 }
 };

@@ -16,7 +16,7 @@ let gcodeArray = [];
 //console.log(gcode.moveToStart(100,50,10));//cylindrical
 
 //gcodeArray = gcode.planar(testBitmaps[1], 0, 100);
-gcodeArray = gcode.cylindrical(testBitmaps[1], 50, 50, 35);
+gcodeArray = gcode.cylindrical(testBitmaps[0], 93, 93, 30);
 
 // gcodeArray.unshift('M3S0') //turn laser on
 
