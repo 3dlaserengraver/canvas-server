@@ -39,7 +39,6 @@ module.exports = class Gcode {
   }
 
   gcode(power, bmX, bmY, bmZ, size, radius) {
-    console.log(radius);
     if(typeof(radius) === 'undefined'){ //planar mode
       let resize = (size/this.stepsToMm.x)/this.bitMapSize;//* assumes we are getting a square array
       let x = bmX * resize * this.stepsToMm.x;
@@ -118,7 +117,7 @@ module.exports = class Gcode {
     }
     gcodeArray.push('M5');
     gcodeArray.push("G10L2P1X0Y0Z0A"+this.aOffset);
-    gcodeArray.push("G0X20Y20F"+G0feedRate+"S0");
+    gcodeArray.push("G0X20Y20F"+this.G0feedRate+"S0");
 
 
     return gcodeArray;
