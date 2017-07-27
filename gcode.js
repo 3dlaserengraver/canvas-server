@@ -4,9 +4,9 @@
 module.exports = class Gcode {
   constructor() {
     this.stepsToMm = {
-      x: (1/80)*(200/203),
-      y: (1/80)*(200/203.5),
-      z: (1000/91.5)*(200/18) //calibration based on the 150 steps/mm setting in grbl
+      x: (1/78.828),//*(200/203),
+      y: (1/78.624),//*(200/203.5),
+      z: (1000/91.5) //calibration based on the 150 steps/mm setting in grbl
     };
     this.G0feedRate = 1000;
     this.G1feedRate = 1000;
@@ -26,6 +26,9 @@ module.exports = class Gcode {
   startup() { // TODO: Remove for prod
     let gcodeArray =  [ '$X',
                         'M5',
+                        '$100=78.828',
+                        '$101=78.624',
+                        '$103=11.463',
                         //"G10L2P1X200Y300A"+(this.aOffset+359.912),
                         //'G54',
                         //'G0X20Y20F'+this.G0feedRate+'S0',
