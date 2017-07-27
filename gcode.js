@@ -14,7 +14,7 @@ module.exports = class Gcode {
     this.yAbsCenter = 175; //mm
     this.laserFocalDistance = 50;
     this.laserTipOffset = 40;
-    this.maxMoveAngle = 114; //~ 10 degrees
+    this.maxMoveAngle = 114.633; //~ 10 degrees
     this.stepsPerRot = 4126.8;
     this.halfASteps = this.stepsPerRot/2;
     this.stepsToDeg = 360/this.stepsPerRot;
@@ -130,10 +130,11 @@ cylindrical(bitmap, size, height, diameter) {
   gcodeArray.push("G10L2P1X"+this.xAbsCenter+"Y"+this.yAbsCenter+"Z0A"+this.aOffset);
   gcodeArray.push("G54");
   gcodeArray.push('M3S0');
+  let bmX = 0;
 
   for(let bmY=0; bmY<bitmap.length; bmY++){
     let power = 0;
-    for(let bmX = 0; bmX<bitmap[bmY].length+1; bmX++){
+    for(bmX = 0; bmX<bitmap[bmY].length+1; bmX++){
       if(bitmap[bmY][bmX] !== power || (moveAngle < this.maxMoveAngle)){ //&& power > 0)){
         if(typeof bitmap[bmY][bmX]==='undefined' && power===0) break;
         gcodeArray.push(this.gcode(power, bmX*(1+bmY), bmY, bmZ, size, radius));
